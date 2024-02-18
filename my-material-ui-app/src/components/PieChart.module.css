@@ -1,0 +1,7 @@
+.chartContainer {
+    width: 400px; /* or any other size */
+    height: 500px;
+    margin: 30px; /* Center the chart if needed */
+    padding: 50px;
+  }
+  

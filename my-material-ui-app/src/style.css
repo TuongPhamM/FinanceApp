@@ -1,0 +1,28 @@
+/* Style the overall container */
+.App {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0; /* Light gray background */
+    padding: 20px; /* Add spacing around the content */
+  }
+  
+  /* Style the heading */
+  .heading {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 25px;
+    margin-bottom: 20px; /* Add spacing below the heading */
+  }
+  
+  /* Style the table container */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff; /* White background for the table */
+    border-radius: 5px; /* Add rounded corners to the table */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  }
+  
+  /* Rest of your existing styles... */
+  

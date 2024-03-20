@@ -3,14 +3,13 @@ import { usePlaidLink } from "react-plaid-link";
 import Button from "plaid-threads/Button";
 
 import Context from "../../Context";
-import {Products} from "plaid";
+import { Products } from "plaid";
 
 const Link = () => {
   const { linkToken, isPaymentInitiation, dispatch } = useContext(Context);
 
   const onSuccess = React.useCallback(
     (public_token: string) => {
-      // If the access_token is needed, send public_token to server
       const exchangePublicTokenForAccessToken = async () => {
         const response = await fetch("/api/set_access_token", {
           method: "POST",
@@ -39,10 +38,11 @@ const Link = () => {
             isItemAccess: true,
           },
         });
+        localStorage.setItem("access_token", data.access_token);
       };
 
       // 'payment_initiation' products do not require the public_token to be exchanged for an access_token.
-      if (isPaymentInitiation){
+      if (isPaymentInitiation) {
         dispatch({ type: "SET_STATE", state: { isItemAccess: false } });
       } else {
         exchangePublicTokenForAccessToken();
@@ -67,7 +67,7 @@ const Link = () => {
     isOauth = true;
   }
 
-  const { open, ready } = usePlaidLink(config);
+  const { open, ready } = usePlaidLink(config); //usePlaidLink will use the config to return public token
 
   useEffect(() => {
     if (isOauth && ready) {

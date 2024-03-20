@@ -39,10 +39,20 @@ const Products = () => {
           endpoint="balance"
           name="Balance"
           categories={balanceCategories}
-          schema="balance"
+          schema="api/balance"
           description="Check balances in real time to prevent non-sufficient funds
         fees."
           transformData={transformBalanceData}
+        />
+      )}
+      {products.includes("transactions") && (
+        <Endpoint
+          endpoint="transactions"
+          name="Transactions"
+          categories={transactionsCategories}
+          schema="api/transactions"
+          description="Retrieve transactions or incremental updates for credit and depository accounts."
+          transformData={transformTransactionsData}
         />
       )}
     </ProductTypesContainer>

@@ -28,6 +28,9 @@
   },
   "scripts": {
     "start": "set PORT=3000 && react-scripts start",
+    "start:dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon --watch backend server.js",
+    "client": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

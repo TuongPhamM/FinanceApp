@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Button from "plaid-threads/Button";
 import Note from "plaid-threads/Note";
 
@@ -7,6 +7,7 @@ import Error from "../Error";
 import { DataItem, Categories, ErrorDataItem, Data } from "../../dataUtilities";
 
 import styles from "./index.module.scss";
+import Context from "../../Context";
 
 interface Props {
   endpoint: string;
@@ -23,11 +24,20 @@ const Endpoint = (props: Props) => {
   const [pdf, setPdf] = useState<string | null>(null);
   const [error, setError] = useState<ErrorDataItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { accessToken } = useContext(Context);
 
   const getData = async () => {
     setIsLoading(true);
+    const access_token = accessToken || localStorage.getItem("access_token");
+
     const response = await fetch(`/api/${props.endpoint}`, {
-      method: "GET",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // Correct content type
+      },
+      body: JSON.stringify({
+        access_token: access_token, // Send as JSON
+      }),
     }); //fetch data based on product type
     const data = await response.json();
     if (data.error != null) {
@@ -47,7 +57,7 @@ const Endpoint = (props: Props) => {
     <>
       <div className={styles.endpointContainer}>
         <Note info className={styles.post}>
-          POST
+          GET
         </Note>
         <div className={styles.endpointContents}>
           <div className={styles.endpointHeader}>

@@ -14,6 +14,17 @@ const bodyParser = require('body-parser');
 const moment = require('moment');
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
+const mongoose = require('mongoose');
+const ItemModel = require('./models/Items');
+const AccountModel = require('./models/Accounts'); // Adjust the path as necessary
+
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.log(err));
 
 const APP_PORT = process.env.APP_PORT || 8000;
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
@@ -52,6 +63,7 @@ let ACCESS_TOKEN = null;
 let PUBLIC_TOKEN = null;
 let ITEM_ID = null;
 let ACCOUNT_ID = null;
+let CURSOR = null;
 // The payment_id is only relevant for the UK/EU Payment Initiation product.
 // We store the payment_id in memory - in production, store it in a secure
 // persistent data store along with the Payment metadata, such as userId .
@@ -132,20 +144,37 @@ app.post('/api/create_link_token', function (request, response, next) {
 // https://plaid.com/docs/#exchange-token-flow
 app.post('/api/set_access_token', function (request, response, next) {
   PUBLIC_TOKEN = request.body.public_token; //public token is stored in body
+  const publicToken = request.body.public_token;
   Promise.resolve()
     .then(async function () {
       const tokenResponse = await client.itemPublicTokenExchange({
-        public_token: PUBLIC_TOKEN,
+        public_token: publicToken, //request body
       });
-      prettyPrintResponse(tokenResponse);
-      ACCESS_TOKEN = tokenResponse.data.access_token;
-      ITEM_ID = tokenResponse.data.item_id;
+      console.log(tokenResponse);
+      const accessToken = tokenResponse.data.access_token;
+      const itemId = tokenResponse.data.item_id;
+
+      // Check if the item already exists in the database
+      const existingItem = await ItemModel.findOne({ plaid_item_id: itemId });
+      if (existingItem) {
+        // Update the existing item's access token
+        existingItem.access_token = accessToken;
+        await existingItem.save();
+      } else {
+        // Or create a new item record
+        const newItem = new ItemModel({
+          plaid_item_id: itemId,
+          access_token: accessToken,
+        });
+        await newItem.save();
+      }
+
       response.json({
         //return a json body of access and item id to front-end
         // maybe we can assign this token into the user information
         // the 'access_token' is a private token, DO NOT pass this token to the frontend in your production environment
-        access_token: ACCESS_TOKEN,
-        item_id: ITEM_ID,
+        access_token: accessToken,
+        item_id: itemId,
         error: null,
       });
     })
@@ -154,15 +183,114 @@ app.post('/api/set_access_token', function (request, response, next) {
 
 // Retrieve real-time Balances for each of an Item's accounts
 // https://plaid.com/docs/#balance
-app.get('/api/balance', function (request, response, next) {
-  ACCESS_TOKEN = request.body.access_token; //access token is stored in body of request
+app.post('/api/balance', function (request, response, next) {
+  const accessToken = request.body.access_token;
   Promise.resolve()
     .then(async function () {
       const balanceResponse = await client.accountsBalanceGet({
-        access_token: ACCESS_TOKEN,
+        //return 8 latest transaction without a cursor
+        access_token: accessToken,
       });
+      const accounts = balanceResponse.data.accounts;
+      const itemId = balanceResponse.data.item.item_id;
+
+      // Iterate over accounts and save/update each in MongoDB
+      accounts.forEach(async (account) => {
+        const {
+          account_id,
+          balances,
+          mask,
+          name,
+          official_name,
+          subtype,
+          type,
+        } = account;
+
+        // Check if the account already exists in the database, existingAccount is boolean which is either true or false
+        const existingAccount = await AccountModel.findOne({
+          plaid_account_id: account_id,
+        });
+
+        if (existingAccount) {
+          // Update the existing account's information
+          existingAccount.set({
+            available_balance: balances.available,
+            current_balance: balances.current,
+            limit: balances.limit,
+            mask: mask,
+            account_name: name,
+            official_name: official_name,
+            account_type: type,
+            account_subtype: subtype,
+          });
+          await existingAccount.save();
+        } else {
+          // Or create a new account record
+          const newAccount = new AccountModel({
+            item_id: itemId,
+            plaid_account_id: account_id,
+            institution_name: '', // You may need to fetch or store this information elsewhere
+            account_name: name,
+            account_type: type,
+            account_subtype: subtype,
+            available_balance: balances.available,
+            current_balance: balances.current,
+            iso_currency_code: balances.iso_currency_code,
+            limit: balances.limit,
+            mask: mask,
+            official_name: official_name,
+          });
+          await newAccount.save();
+        }
+      });
+
       prettyPrintResponse(balanceResponse);
       response.json(balanceResponse.data);
+    })
+    .catch(next);
+});
+
+// Retrieve Transactions for an Item
+// https://plaid.com/docs/#transactions
+app.post('/api/transactions', function (request, response, next) {
+  const accessToken = request.body.access_token;
+  Promise.resolve()
+    .then(async function () {
+      // Set cursor to empty to receive all historical updates
+      let cursor = null;
+
+      // New transaction updates since "cursor"
+      let added = [];
+      let modified = [];
+      // Removed transaction ids
+      let removed = [];
+      let hasMore = true;
+      // Iterate through each page of new transaction updates for item
+      while (hasMore) {
+        const request = {
+          access_token: accessToken,
+          cursor: cursor,
+        };
+        const response = await client.transactionsSync(request); //using transaction/sync
+        const data = response.data;
+        // Add this page of results
+        added = added.concat(data.added);
+        modified = modified.concat(data.modified);
+        removed = removed.concat(data.removed);
+        hasMore = data.has_more;
+        cursor = data.next_cursor;
+        // Update cursor to the next cursor
+        CURSOR = data.next_cursor;
+        prettyPrintResponse(response);
+      }
+
+      const compareTxnsByDateAscending = (a, b) =>
+        (a.date > b.date) - (a.date < b.date);
+      // Return the 8 most recent transactions
+      const recently_added = [...added]
+        .sort(compareTxnsByDateAscending)
+        .slice(-8);
+      response.json({ latest_transactions: recently_added });
     })
     .catch(next);
 });
@@ -185,7 +313,12 @@ const server = app.listen(APP_PORT, function () {
 });
 
 const prettyPrintResponse = (response) => {
-  console.log(util.inspect(response.data, { colors: true, depth: 4 }));
+  if (!response || !response.data) {
+    console.error('Response or response.data is undefined');
+    return;
+  } else {
+    console.log(util.inspect(response.data, { colors: true, depth: 4 }));
+  }
 };
 
 const formatError = (error) => {

@@ -1,7 +1,21 @@
-import React from 'react';
-import { InputLabel, MenuItem, FormControl, Select } from '@mui/material';
+import React from "react";
+import { InputLabel, MenuItem, FormControl, Select } from "@mui/material";
 
-function MonthBox({ month, onChange, months }) {
+function MonthBox({ month, onChange }) {
+  const months = [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+  ];
   return (
     <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
       <InputLabel id="month-select-label">Month</InputLabel>
@@ -13,7 +27,9 @@ function MonthBox({ month, onChange, months }) {
         onChange={onChange}
       >
         {months.map((m) => (
-          <MenuItem key={m} value={m}>{m}</MenuItem>
+          <MenuItem key={m} value={m}>
+            {m}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>

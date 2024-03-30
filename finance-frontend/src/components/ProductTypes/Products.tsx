@@ -34,7 +34,7 @@ const Products = () => {
   const { products } = useContext(Context);
   return (
     <ProductTypesContainer productType="Products">
-      {!products.includes("payment_initiation") && (
+      {products.includes("balance") && (
         <Endpoint
           endpoint="balance"
           name="Balance"

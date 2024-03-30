@@ -1,7 +1,8 @@
-import React from 'react';
-import { InputLabel, MenuItem, FormControl, Select } from '@mui/material';
+import React from "react";
+import { InputLabel, MenuItem, FormControl, Select } from "@mui/material";
 
-function YearBox({ year, onChange, years }) {
+function YearBox({ year, onChange }) {
+  const years = ["2020", "2021", "2022", "2023", "2024"];
   return (
     <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
       <InputLabel id="year-select-label">Year</InputLabel>
@@ -13,7 +14,9 @@ function YearBox({ year, onChange, years }) {
         onChange={onChange}
       >
         {years.map((yr) => (
-          <MenuItem key={yr} value={yr}>{yr}</MenuItem>
+          <MenuItem key={yr} value={yr}>
+            {yr}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>

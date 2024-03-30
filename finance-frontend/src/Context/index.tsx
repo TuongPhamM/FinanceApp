@@ -15,6 +15,12 @@ interface QuickstartState {
     error_code: string;
     error_type: string;
   };
+  filters: {
+    year: string;
+    month: string;
+  };
+  transactions: any[];
+  chartData: any[];
 }
 
 const initialState: QuickstartState = {
@@ -26,18 +32,37 @@ const initialState: QuickstartState = {
   itemId: null,
   isError: false,
   backend: true,
-  products: ["transactions"],
+  products: ["balance", "transactions"],
   linkTokenError: {
     error_type: "",
     error_code: "",
     error_message: "",
   },
+  filters: { year: "", month: "" },
+  transactions: [],
+  chartData: [],
 };
 
-type QuickstartAction = {
-  type: "SET_STATE";
-  state: Partial<QuickstartState>;
-};
+type QuickstartAction =
+  | {
+      type: "SET_STATE";
+      state: Partial<QuickstartState>;
+    }
+  | {
+      type: "SET_CHART_DATA";
+      chartData: any[];
+    }
+  | {
+      type: "SET_TRANSACTIONS";
+      transactions: any[];
+    }
+  | {
+      type: "SET_FILTERS";
+      filters: {
+        year: string;
+        month: string;
+      };
+    };
 
 interface QuickstartContext extends QuickstartState {
   dispatch: Dispatch<QuickstartAction>;
@@ -58,6 +83,12 @@ export const QuickstartProvider: React.FC<{ children: ReactNode }> = (
     switch (action.type) {
       case "SET_STATE":
         return { ...state, ...action.state };
+      case "SET_CHART_DATA":
+        return { ...state, chartData: action.chartData };
+      case "SET_TRANSACTIONS":
+        return { ...state, transactions: action.transactions };
+      case "SET_FILTERS":
+        return { ...state, filters: action.filters };
       default:
         return { ...state };
     }

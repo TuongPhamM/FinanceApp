@@ -57,7 +57,7 @@ const Endpoint = (props: Props) => {
     <>
       <div className={styles.endpointContainer}>
         <Note info className={styles.post}>
-          GET
+          POST
         </Note>
         <div className={styles.endpointContents}>
           <div className={styles.endpointHeader}>

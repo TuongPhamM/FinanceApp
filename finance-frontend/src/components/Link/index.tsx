@@ -39,6 +39,30 @@ const Link = () => {
           },
         });
         localStorage.setItem("access_token", data.access_token);
+
+        // Right after setting access token, fetch balance and transactions
+        await fetchBalanceAndTransactions(data.access_token);
+      };
+
+      // Function to fetch balance and transactions
+      const fetchBalanceAndTransactions = async (accessToken: string) => {
+        // Fetch balance
+        await fetch("/api/balance", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          },
+          body: `access_token=${accessToken}`,
+        });
+
+        // Fetch transactions
+        await fetch("/api/transactions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          },
+          body: `access_token=${accessToken}`,
+        });
       };
 
       // 'payment_initiation' products do not require the public_token to be exchanged for an access_token.

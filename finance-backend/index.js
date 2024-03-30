@@ -17,6 +17,7 @@ const MongoClient = require('mongodb').MongoClient;
 const mongoose = require('mongoose');
 const ItemModel = require('./models/Items');
 const AccountModel = require('./models/Accounts'); // Adjust the path as necessary
+const TransactionModel = require('./models/Transactions');
 
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -143,7 +144,6 @@ app.post('/api/create_link_token', function (request, response, next) {
 // an API access_token
 // https://plaid.com/docs/#exchange-token-flow
 app.post('/api/set_access_token', function (request, response, next) {
-  PUBLIC_TOKEN = request.body.public_token; //public token is stored in body
   const publicToken = request.body.public_token;
   Promise.resolve()
     .then(async function () {
@@ -165,6 +165,7 @@ app.post('/api/set_access_token', function (request, response, next) {
         const newItem = new ItemModel({
           plaid_item_id: itemId,
           access_token: accessToken,
+          cursor: null,
         });
         await newItem.save();
       }
@@ -244,7 +245,6 @@ app.post('/api/balance', function (request, response, next) {
         }
       });
 
-      prettyPrintResponse(balanceResponse);
       response.json(balanceResponse.data);
     })
     .catch(next);
@@ -252,47 +252,108 @@ app.post('/api/balance', function (request, response, next) {
 
 // Retrieve Transactions for an Item
 // https://plaid.com/docs/#transactions
-app.post('/api/transactions', function (request, response, next) {
+app.post('/api/transactions', async (request, response, next) => {
   const accessToken = request.body.access_token;
-  Promise.resolve()
-    .then(async function () {
-      // Set cursor to empty to receive all historical updates
-      let cursor = null;
 
-      // New transaction updates since "cursor"
-      let added = [];
-      let modified = [];
-      // Removed transaction ids
-      let removed = [];
-      let hasMore = true;
-      // Iterate through each page of new transaction updates for item
-      while (hasMore) {
-        const request = {
-          access_token: accessToken,
-          cursor: cursor,
-        };
-        const response = await client.transactionsSync(request); //using transaction/sync
-        const data = response.data;
-        // Add this page of results
-        added = added.concat(data.added);
-        modified = modified.concat(data.modified);
-        removed = removed.concat(data.removed);
-        hasMore = data.has_more;
-        cursor = data.next_cursor;
-        // Update cursor to the next cursor
-        CURSOR = data.next_cursor;
-        prettyPrintResponse(response);
-      }
+  try {
+    const existingItem = await ItemModel.findOne({
+      access_token: accessToken,
+    });
 
-      const compareTxnsByDateAscending = (a, b) =>
-        (a.date > b.date) - (a.date < b.date);
-      // Return the 8 most recent transactions
-      const recently_added = [...added]
-        .sort(compareTxnsByDateAscending)
-        .slice(-8);
-      response.json({ latest_transactions: recently_added });
-    })
-    .catch(next);
+    if (!existingItem) {
+      return response.status(404).json({ error: 'Item not found.' });
+    }
+
+    const transactionsResponse = await client.transactionsSync({
+      access_token: accessToken,
+      cursor: existingItem.cursor || '',
+    });
+
+    const {
+      added,
+      modified,
+      removed,
+      next_cursor: nextCursor,
+    } = transactionsResponse.data;
+
+    // Handle Added Transactions
+    for (const transaction of added) {
+      const newTransaction = new TransactionModel({
+        plaid_transaction_id: transaction.transaction_id,
+        plaid_account_id: transaction.account_id,
+        iso_currency_code: transaction.iso_currency_code,
+        category: transaction.category,
+        amount: transaction.amount,
+        date: transaction.date,
+        name: transaction.name,
+        merchant_name: transaction.merchant_name,
+        pending: transaction.pending,
+      });
+      await newTransaction.save();
+    }
+
+    // Handle Modified Transactions
+    for (const transaction of modified) {
+      await TransactionModel.findOneAndUpdate(
+        { plaid_transaction_id: transaction.transaction_id },
+        {
+          $set: {
+            amount: transaction.amount,
+            pending: transaction.pending,
+          },
+        },
+      );
+    }
+
+    // Handle Removed Transactions
+    for (const transaction of removed) {
+      await TransactionModel.deleteOne({
+        plaid_transaction_id: transaction.transaction_id,
+      });
+    }
+
+    // Update the cursor in the existing item for the next sync
+    existingItem.cursor = nextCursor;
+    await existingItem.save();
+
+    // Optionally, sort and limit the output if needed
+    const recentlyAdded = added.slice(0, 8); // Simplified for brevity
+
+    response.json({ latest_transactions: recentlyAdded });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/transactions/filter', async (request, response) => {
+  const { access_token, month, year } = request.body;
+
+  try {
+    // First, find the item associated with the access_token
+    const item = await ItemModel.findOne({ access_token });
+    if (!item) {
+      return response.status(404).json({ error: 'Item not found.' });
+    }
+
+    // Then, find all accounts associated with this item
+    const accounts = await AccountModel.find({ item_id: item.plaid_item_id });
+    const accountIds = accounts.map((account) => account.plaid_account_id);
+
+    // Finally, fetch transactions for these accounts that match the month and year
+    const startDate = new Date(`${year}-${month}-01`); // Months are 0-indexed
+    const endDate = new Date(`${year}-${month}-01`); // Last moment of the month
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    const transactions = await TransactionModel.find({
+      plaid_account_id: { $in: accountIds },
+      date: { $gte: startDate, $lt: endDate },
+    });
+
+    response.json(transactions);
+  } catch (error) {
+    console.error('Error fetching filtered transactions:', error);
+    response.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 app.use('/api', function (error, request, response, next) {

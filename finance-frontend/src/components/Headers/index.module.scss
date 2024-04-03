@@ -4,30 +4,29 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  margin: auto;
-  margin-bottom: 2 * $unit;
+  justify-content: flex-start; // Align items to the start of the container
+  margin: 10px;
 }
 
 .title {
-  margin-top: 9 * $unit;
-  margin-bottom: 0;
-  font-weight: 800;
-  height: 6 * $unit;
+  margin: 20;
+  font-weight: 700;
 }
 
 .subtitle {
-  margin-top: 0;
-  margin-bottom: 3 * $unit;
+  margin-top: 1px;
 }
 
 .introPar {
   width: 100%;
   font-size: 2 * $unit;
-  margin: 2 * $unit 0;
+  margin: 20;
 }
 
 .linkButton {
   margin-top: 3 * $unit;
+  background-color: #ffffff;
+  color: rgb(255, 255, 255);
 }
 
 .itemAccessContainer {

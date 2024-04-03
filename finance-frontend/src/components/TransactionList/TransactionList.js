@@ -6,7 +6,7 @@ function TransactionList() {
   const { transactions } = useContext(Context);
   return (
     <div>
-      <h2>Transaction History</h2>
+      <th>Transaction History</th>
       <table>
         <thead>
           <tr>

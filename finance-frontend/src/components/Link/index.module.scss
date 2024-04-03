@@ -1,0 +1,17 @@
+.whiteTextButton {
+  background-color: black; // Makes the button background black
+  color: white; // Makes the text color white
+  border: none; // Optional: Removes the border if present
+
+  &:hover {
+    background-color: darken(
+      black,
+      10%
+    ); // Optional: Darkens the button on hover for feedback
+  }
+
+  &:disabled {
+    background-color: gray; // Optional: Changes the background when disabled
+    color: darken(white, 10%); // Optional: Darken the text when disabled
+  }
+}

@@ -1,46 +1,56 @@
 /* Style the table container */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px; /* Add space between the pie chart and the table */
-  }
-  
-  /* Style table headers */
-  th {
-    background-color: #f5f5f5;
-    color: #333;
-    font-weight: bold;
-    padding: 10px;
-    text-align: left;
-  }
-  
-  /* Style table rows */
-  tr {
-    border-bottom: 1px solid #ddd;
-  }
-  
-  /* Style table data cells */
-  td {
-    padding: 10px;
-    vertical-align: top;
-  }
-  
-  /* Style alternating row colors for better readability */
-  tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  /* Style the "Verified" column with green and red colors */
-  td:last-child {
-    text-align: center;
-    font-weight: bold;
-  }
-  
-  td:last-child .verified-yes {
-    color: green;
-  }
-  
-  td:last-child .verified-no {
-    color: red;
-  }
-  
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px; /* Add space between the pie chart and the table */
+}
+
+/* Style table headers */
+th {
+  background-color: #f5f5f5;
+  color: #333;
+  font-weight: bold;
+  padding: 10px;
+  text-align: left;
+}
+
+/* Style table rows */
+tr {
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  padding: 10px;
+  background-color: white;
+}
+
+/* Style table data cells */
+td {
+  padding: 10px;
+  vertical-align: top;
+}
+
+/* Style alternating row colors for better readability */
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Style the "Verified" column with green and red colors */
+td:last-child {
+  text-align: center;
+  font-weight: bold;
+}
+
+td:last-child .verified-yes {
+  color: green;
+}
+
+td:last-child .verified-no {
+  color: red;
+}
+
+div {
+  margin-top: 1px;
+  margin-left: 1px;
+  margin-right: 1px;
+}

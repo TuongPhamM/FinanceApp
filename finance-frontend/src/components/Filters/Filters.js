@@ -7,11 +7,9 @@ import Button from "@mui/material/Button";
 import TransactionList from "../TransactionList/TransactionList";
 import styles from "./Filters.module.css";
 import ld from "lodash";
-import BarChart from "../BarChart/BarChart";
-import PieChart from "../PieChart/PieChart";
 
 const FiltersComponent = () => {
-  const { accessToken, transactions, dispatch } = useContext(Context);
+  const { accessToken, dispatch } = useContext(Context);
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
 
@@ -73,8 +71,8 @@ const FiltersComponent = () => {
     // Assuming you have a predefined set of colors for categories
     const categoryColors = {
       Groceries: "rgb(1, 220, 60)",
-      Payment: "rgb(145, 255, 0)",
-      Travel: "rgb(0, 102, 255)",
+      Payment: "rgb(17, 255, 0)",
+      Travel: "rgb(0, 218, 233)",
       "Food and Drink": "rgb(255, 162, 0)",
       Transfer: "rgb(255, 0, 0)",
 
@@ -94,12 +92,16 @@ const FiltersComponent = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-        <div>
-          <YearBox year={selectedYear} onChange={handleYearChange} />
-          <MonthBox month={selectedMonth} onChange={handleMonthChange} />
-          <Button variant="contained" onClick={applyFilters}>
+    <div>
+      <div className={styles.filterContainer}>
+        <YearBox year={selectedYear} onChange={handleYearChange} />
+        <MonthBox month={selectedMonth} onChange={handleMonthChange} />
+        <div className={styles.button}>
+          <Button
+            className={styles.customButton}
+            variant="contained"
+            onClick={applyFilters}
+          >
             Apply Filters
           </Button>
         </div>

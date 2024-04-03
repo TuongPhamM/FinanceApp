@@ -23,12 +23,10 @@ const Header = () => {
   return (
     <div className={styles.grid}>
       <h3 className={styles.title}>Tuong Pham Finance App</h3>
+      <h4 className={styles.subtitle}>I N S I G H T F U L</h4>
 
       {!linkSuccess ? (
         <>
-          <h4 className={styles.subtitle}>
-            I N S I G H T F U L L Y
-          </h4>
           <p className={styles.introPar}>
             Click 'launch' to connect your bank.
           </p>
@@ -89,62 +87,39 @@ const Header = () => {
         <>
           {isPaymentInitiation ? (
             <>
-            <h4 className={styles.subtitle}>
-              Congrats! Your payment is now confirmed.
-              <p/>
-              <Callout>
-                You can see information of all your payments in the{' '}
-                <InlineLink
+              <h4 className={styles.subtitle}>
+                Congrats! Your payment is now confirmed.
+                <p />
+                <Callout>
+                  You can see information of all your payments in the{" "}
+                  <InlineLink
                     href="https://dashboard.plaid.com/activity/payments"
                     target="_blank"
-                >
-                  Payments Dashboard
-                </InlineLink>
-                .
-              </Callout>
-            </h4>
-            <p className={styles.requests}>
-              Now that the 'payment_id' stored in your server, you can use it to access the payment information:
-            </p>
-          </>
-          ) : /* If not using the payment_initiation product, show the item_id and access_token information */ (
-            <>
-            {isItemAccess ? (
-                <h4 className={styles.subtitle}>
-                  Congrats! By linking an account, you have created an{" "}
-                  <InlineLink
-                      href="http://plaid.com/docs/quickstart/glossary/#item"
-                      target="_blank"
                   >
-                    Item
+                    Payments Dashboard
                   </InlineLink>
                   .
-                </h4>
-            ) : (
+                </Callout>
+              </h4>
+              <p className={styles.requests}>
+                Now that the 'payment_id' stored in your server, you can use it
+                to access the payment information:
+              </p>
+            </>
+          ) : (
+            /* If not using the payment_initiation product, show the item_id and access_token information */ <>
+              {isItemAccess ? (
+                <div className={styles.subtitle}>
+                  Your account has been linked.
+                </div>
+              ) : (
                 <h4 className={styles.subtitle}>
                   <Callout warning>
                     Unable to create an item. Please check your backend server
                   </Callout>
                 </h4>
-            )}
-            <div className={styles.itemAccessContainer}>
-              <p className={styles.itemAccessRow}>
-                <span className={styles.idName}>item_id</span>
-                <span className={styles.tokenText}>{itemId}</span>
-              </p>
-
-              <p className={styles.itemAccessRow}>
-                <span className={styles.idName}>access_token</span>
-                <span className={styles.tokenText}>{accessToken}</span>
-              </p>
-            </div>
-            {isItemAccess && (
-                <p className={styles.requests}>
-                  Now that you have an access_token, you can make all of the
-                  following requests:
-                </p>
-            )}
-          </>
+              )}
+            </>
           )}
         </>
       )}

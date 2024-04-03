@@ -4,6 +4,7 @@ import Button from "plaid-threads/Button";
 
 import Context from "../../Context";
 import { Products } from "plaid";
+import styles from "./index.module.scss";
 
 const Link = () => {
   const { linkToken, isPaymentInitiation, dispatch } = useContext(Context);
@@ -100,7 +101,13 @@ const Link = () => {
   }, [ready, open, isOauth]);
 
   return (
-    <Button type="button" large onClick={() => open()} disabled={!ready}>
+    <Button
+      type="button"
+      large
+      onClick={() => open()}
+      disabled={!ready}
+      className={styles.whiteTextButton}
+    >
       Launch
     </Button>
   );

@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const AccountSchema = new mongoose.Schema(
   {
     item_id: {
-      // Reference to Item model
       type: String,
       required: true,
     },
@@ -16,9 +15,8 @@ const AccountSchema = new mongoose.Schema(
     current_balance: { type: Number, required: true },
     iso_currency_code: { type: String, required: true },
     limit: { type: Number },
-    mask: String, // Last 4 digits of account number (if available)
-    official_name: String, // The official name of the account (if available)
-    // Additional fields depending on your needs
+    mask: String,
+    official_name: String,
   },
   { timestamps: true },
 );

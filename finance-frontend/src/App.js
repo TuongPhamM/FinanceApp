@@ -6,6 +6,7 @@ import TransactionList from "./components/TransactionList/TransactionList";
 import PieChart from "./components/PieChart/PieChart";
 import FiltersComponent from "./components/Filters/Filters";
 import BarChart from "./components/BarChart/BarChart"; // Javascript file
+import BarChart2 from "./components/BarChart2/BarChart2"; // Javascript file
 import Header from "./components/Headers";
 import Context from "./Context";
 
@@ -87,8 +88,8 @@ function App() {
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between", // Align items to the right
-              alignItems: "center", // Vertically center items
+              justifyContent: "space-between",
+              alignItems: "center",
               minWidth: 12,
             }}
           >
@@ -106,6 +107,7 @@ function App() {
           <div className={styles.chartContainer}>
             <PieChart />
             <BarChart />
+            <BarChart2 />
           </div>
           <div className={styles.TransactionListContainer}>
             <TransactionList />

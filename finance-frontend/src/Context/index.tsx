@@ -1,5 +1,10 @@
 import { createContext, useReducer, Dispatch, ReactNode } from "react";
 
+interface MonthlyTotal {
+  monthYear: string;
+  total: number;
+}
+
 interface QuickstartState {
   linkSuccess: boolean;
   isItemAccess: boolean;
@@ -21,6 +26,7 @@ interface QuickstartState {
   };
   transactions: any[];
   chartData: any[];
+  monthlyTotals: MonthlyTotal[];
 }
 
 const initialState: QuickstartState = {
@@ -41,6 +47,7 @@ const initialState: QuickstartState = {
   filters: { year: "", month: "" },
   transactions: [],
   chartData: [],
+  monthlyTotals: [],
 };
 
 type QuickstartAction =
@@ -62,6 +69,10 @@ type QuickstartAction =
         year: string;
         month: string;
       };
+    }
+  | {
+      type: "SET_MONTHLY_TOTALS";
+      monthlyTotals: MonthlyTotal[];
     };
 
 interface QuickstartContext extends QuickstartState {
@@ -89,6 +100,8 @@ export const QuickstartProvider: React.FC<{ children: ReactNode }> = (
         return { ...state, transactions: action.transactions };
       case "SET_FILTERS":
         return { ...state, filters: action.filters };
+      case "SET_MONTHLY_TOTALS":
+        return { ...state, monthlyTotals: action.monthlyTotals };
       default:
         return { ...state };
     }

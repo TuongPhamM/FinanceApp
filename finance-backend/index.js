@@ -16,7 +16,7 @@ const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
 const mongoose = require('mongoose');
 const ItemModel = require('./models/Items');
-const AccountModel = require('./models/Accounts'); // Adjust the path as necessary
+const AccountModel = require('./models/Accounts');
 const TransactionModel = require('./models/Transactions');
 
 mongoose
@@ -230,7 +230,7 @@ app.post('/api/balance', function (request, response, next) {
           const newAccount = new AccountModel({
             item_id: itemId,
             plaid_account_id: account_id,
-            institution_name: '', // You may need to fetch or store this information elsewhere
+            institution_name: '',
             account_name: name,
             account_type: type,
             account_subtype: subtype,
@@ -352,6 +352,59 @@ app.post('/api/transactions/filter', async (request, response) => {
     response.json(transactions);
   } catch (error) {
     console.error('Error fetching filtered transactions:', error);
+    response.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.post('/api/transactions/recent', async (request, response) => {
+  const { access_token } = request.body;
+
+  try {
+    // Find the item associated with the access_token
+    const item = await ItemModel.findOne({ access_token });
+    if (!item) {
+      return response.status(404).json({ error: 'Item not found.' });
+    }
+
+    // Find all accounts associated with this item
+    const accounts = await AccountModel.find({ item_id: item.plaid_item_id });
+    const accountIds = accounts.map((account) => account.plaid_account_id);
+
+    // Calculate the start date for 4 months ago
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(endDate.getMonth() - 3); // Get the start of the 4-month period
+    startDate.setDate(1); // Set to the first day of the month
+    endDate.setDate(1); // Set to the first day of the current month
+    endDate.setMonth(endDate.getMonth() + 1); // Move to the first day of next month
+
+    // Fetch transactions for these accounts within the last four months
+    const transactions = await TransactionModel.find({
+      plaid_account_id: { $in: accountIds },
+      date: { $gte: startDate, $lt: endDate },
+    });
+
+    // Aggregate transactions by month
+    const monthlyTotals = transactions.reduce((acc, transaction) => {
+      const monthYearKey = `${
+        transaction.date.getMonth() + 1
+      }-${transaction.date.getFullYear()}`;
+      acc[monthYearKey] =
+        (acc[monthYearKey] || 0) + Math.abs(transaction.amount); // Use absolute value for the amount
+      return acc;
+    }, {});
+
+    // Convert the aggregated data to an array format suitable for the response
+    const monthlyTotalsArray = Object.entries(monthlyTotals).map(
+      ([monthYear, total]) => ({
+        monthYear,
+        total,
+      }),
+    );
+
+    response.json(monthlyTotalsArray);
+  } catch (error) {
+    console.error('Error fetching and aggregating transactions:', error);
     response.status(500).json({ message: 'Internal server error' });
   }
 });

@@ -3,46 +3,48 @@ import { Chart } from "chart.js/auto";
 import styles from "./Chart.module.css";
 import Context from "../../Context";
 
-const BarChart = () => {
+const BarChart2 = () => {
   const chartRef = useRef(null);
-  const { chartData } = useContext(Context);
+  const { monthlyTotals } = useContext(Context);
 
   useEffect(() => {
-    if (chartRef && chartRef.current && chartData.length > 0) {
+    if (chartRef && chartRef.current && monthlyTotals.length > 0) {
       const chartInstance = new Chart(chartRef.current, {
         type: "bar",
         data: {
-          labels: chartData.map((data) => data.label),
+          labels: monthlyTotals.map((data) => data.monthYear),
           datasets: [
             {
-              label: "Spend",
-              data: chartData.map((data) => data.value),
-              backgroundColor: chartData.map((data) => data.color),
+              label: "Monthly Spend",
+              data: monthlyTotals.map((data) => data.total),
+              backgroundColor: [
+                "rgba(255, 99, 132, 0.2)",
+                "rgba(255, 159, 64, 0.2)",
+                "rgba(255, 205, 86, 0.2)",
+                "rgba(75, 192, 192, 0.2)",
+              ],
               borderColor: "#C0C0C0",
-              borderWidth: 0.5,
+              borderWidth: 1,
             },
           ],
         },
+
         options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-            },
-          },
+          indexAxis: "y",
           plugins: {
             tooltip: {
               callbacks: {
                 label: function (context) {
-                  let label = context.dataset.label || "";
+                  let label = context.label || "";
 
                   if (label) {
                     label += ": ";
                   }
-                  if (context.parsed.y !== null) {
+                  if (context.parsed.x !== null) {
                     label += new Intl.NumberFormat("en-US", {
                       style: "currency",
                       currency: "USD",
-                    }).format(context.parsed.y);
+                    }).format(context.parsed.x);
                   }
                   return label;
                 },
@@ -54,13 +56,13 @@ const BarChart = () => {
 
       return () => chartInstance.destroy();
     }
-  }, [chartData]); // Add chartData to dependency array to react on its updates
+  }, [monthlyTotals]); // Add chartData to dependency array to react on its updates
 
   return (
-    <div className={styles.chartContainer}>
+    <div className={styles.chartContainer2}>
       <canvas ref={chartRef}></canvas>
     </div>
   );
 };
 
-export default BarChart;
+export default BarChart2;

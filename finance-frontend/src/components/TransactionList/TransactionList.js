@@ -10,7 +10,6 @@ function TransactionList() {
       <table>
         <thead>
           <tr>
-            <th>User</th>{" "}
             {/* Consider removing or modifying this if not used */}
             <th>Date</th>
             <th>Name</th>
@@ -25,7 +24,6 @@ function TransactionList() {
         <tbody>
           {transactions.map((transaction, index) => (
             <tr key={index}>
-              <td>{transaction.plaid_account_id || "N/A"}</td>{" "}
               {/* Modify according to your data */}
               <td>{transaction.date}</td>
               <td>{transaction.name}</td>

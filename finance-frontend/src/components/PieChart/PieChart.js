@@ -16,17 +16,30 @@ const PieChart = () => {
           datasets: [
             {
               label: "Spend",
-              data: chartData.map((data) => data.value),
+              data: chartData.map((data) => data.percentage),
               backgroundColor: chartData.map((data) => data.color),
               borderColor: "#C0C0C0",
-              borderWidth: 1,
+              borderWidth: 0.5,
+              hoverOffset: 4,
             },
           ],
         },
         options: {
-          scales: {
-            y: {
-              beginAtZero: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || "";
+
+                  if (label) {
+                    label += ": ";
+                  }
+                  if (context.parsed !== null) {
+                    label += Intl.NumberFormat().format(context.parsed) + "%";
+                  }
+                  return label;
+                },
+              },
             },
           },
         },

@@ -7,7 +7,8 @@ import { Products } from "plaid";
 import styles from "./index.module.scss";
 
 const Link = () => {
-  const { linkToken, isPaymentInitiation, dispatch } = useContext(Context);
+  const { linkToken, isPaymentInitiation, monthlyTotals, dispatch } =
+    useContext(Context);
 
   const onSuccess = React.useCallback(
     (public_token: string) => {
@@ -45,9 +46,9 @@ const Link = () => {
         await fetchBalanceAndTransactions(data.access_token);
       };
 
-      // Function to fetch balance and transactions
+      // Function to fetch balance and transactions into MongoDB
       const fetchBalanceAndTransactions = async (accessToken: string) => {
-        // Fetch balance
+        // Fetch balance will store item's accounts
         await fetch("/api/balance", {
           method: "POST",
           headers: {
@@ -56,13 +57,35 @@ const Link = () => {
           body: `access_token=${accessToken}`,
         });
 
-        // Fetch transactions
+        // Fetch transactions will store 100 recent transactions
         await fetch("/api/transactions", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
           },
           body: `access_token=${accessToken}`,
+        });
+
+        const response = await fetch("/api/transactions/recent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          },
+          body: `access_token=${accessToken}`,
+        });
+
+        if (!response.ok) {
+          // Handle errors, e.g., show an error message
+          console.error("Failed to fetch transactions for monthly totals");
+          return;
+        }
+
+        const monthlyTotals = await response.json();
+        console.log("Fetched transactions for monthly totals:", monthlyTotals);
+
+        dispatch({
+          type: "SET_MONTHLY_TOTALS",
+          monthlyTotals: monthlyTotals,
         });
       };
 

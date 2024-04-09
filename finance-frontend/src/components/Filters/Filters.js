@@ -4,7 +4,6 @@ import YearBox from "../YearBox/YearBox";
 import MonthBox from "../MonthBox/MonthBox";
 import Context from "../../Context";
 import Button from "@mui/material/Button";
-import TransactionList from "../TransactionList/TransactionList";
 import styles from "./Filters.module.css";
 import ld from "lodash";
 
@@ -62,7 +61,7 @@ const FiltersComponent = () => {
     // Dispatch aggregated data for charts to context
     dispatch({
       type: "SET_CHART_DATA",
-      chartData: aggregatedData,
+      chartData: aggregatedData.aggregatedData,
     });
   };
 
@@ -72,23 +71,34 @@ const FiltersComponent = () => {
     const categoryColors = {
       Groceries: "rgb(1, 220, 60)",
       Payment: "rgb(17, 255, 0)",
+      Taxi: "rgb(0, 218, 233)",
       Travel: "rgb(0, 218, 233)",
       "Food and Drink": "rgb(255, 162, 0)",
+      Restaurant: "rgb(255, 162, 0)",
       Transfer: "rgb(255, 0, 0)",
 
       // Add more categories and their colors
     };
+
+    // Calculate total spend
+    const totalSpend = ld.sumBy(transactions, (t) => Math.abs(t.amount));
 
     const aggregatedData = ld(transactions)
       .groupBy("category[0]") // Assuming the main category is the first in the category array
       .map((transactions, category) => ({
         label: category,
         value: ld.sumBy(transactions, "amount"),
-        color: categoryColors[category] || "#000000",
+        percentage:
+          (ld.sumBy(transactions, (t) => Math.abs(t.amount)) / totalSpend) *
+          100,
+        color: categoryColors[category] || "#000000", // the color is either assigned  or black
       }))
       .value();
 
-    return aggregatedData;
+    return {
+      aggregatedData,
+      totalSpend, // You can return it separately if you want to handle it differently
+    };
   };
 
   return (

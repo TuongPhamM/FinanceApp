@@ -11,7 +11,7 @@ const Link = () => {
     useContext(Context);
 
   const onSuccess = React.useCallback(
-    (public_token: string) => {
+    (public_token) => {
       const exchangePublicTokenForAccessToken = async () => {
         const response = await fetch("/api/set_access_token", {
           method: "POST",
@@ -47,7 +47,7 @@ const Link = () => {
       };
 
       // Function to fetch balance and transactions into MongoDB
-      const fetchBalanceAndTransactions = async (accessToken: string) => {
+      const fetchBalanceAndTransactions = async (accessToken) => {
         // Fetch balance will store item's accounts
         await fetch("/api/balance", {
           method: "POST",
@@ -103,8 +103,8 @@ const Link = () => {
   );
 
   let isOauth = false;
-  const config: Parameters<typeof usePlaidLink>[0] = {
-    token: linkToken!, //embedded it
+  const config = {
+    token: linkToken, //embedded it
     onSuccess,
   };
 

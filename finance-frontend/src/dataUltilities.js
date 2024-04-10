@@ -1,155 +1,12 @@
-import {
-  AuthGetResponse,
-  Transaction,
-  IdentityGetResponse,
-  InvestmentsHoldingsGetResponse,
-  InvestmentsTransactionsGetResponse,
-  AccountsGetResponse,
-  ItemGetResponse,
-  InstitutionsGetByIdResponse,
-  LiabilitiesGetResponse,
-  PaymentInitiationPaymentGetResponse,
-  AssetReportGetResponse,
-  AssetReport,
-  TransferCreateResponse,
-  TransferAuthorizationCreateResponse,
-  IncomeVerificationPaystubsGetResponse,
-  Paystub,
-  Earnings,
-} from "plaid/dist/api";
-
-const formatCurrency = (
-  number: number | null | undefined,
-  code: string | null | undefined
-) => {
+const formatCurrency = (number, code) => {
   if (number != null && number !== undefined) {
     return ` ${parseFloat(number.toFixed(2)).toLocaleString("en")} ${code}`;
   }
   return "no data";
 };
 
-export interface Categories {
-  title: string;
-  field: string;
-}
-
-//interfaces for categories in each individual product
-interface AuthDataItem {
-  routing: string;
-  account: string;
-  balance: string;
-  name: string;
-}
-interface TransactionsDataItem {
-  amount: string;
-  date: string;
-  name: string;
-}
-
-interface IdentityDataItem {
-  addresses: string;
-  phoneNumbers: string;
-  emails: string;
-  names: string;
-}
-
-interface BalanceDataItem {
-  balance: string;
-  subtype: string | null;
-  mask: string;
-  name: string;
-}
-
-interface InvestmentsDataItem {
-  mask: string;
-  quantity: string;
-  price: string;
-  value: string;
-  name: string;
-}
-
-interface InvestmentsTransactionItem {
-  amount: number;
-  date: string;
-  name: string;
-}
-
-interface LiabilitiessDataItem {
-  amount: string;
-  date: string;
-  name: string;
-  type: string;
-}
-
-interface PaymentDataItem {
-  paymentId: string;
-  amount: string;
-  status: string;
-  statusUpdate: string;
-  recipientId: string;
-}
-
-interface ItemDataItem {
-  billed: string;
-  available: string;
-  name: string;
-}
-
-interface AssetsDataItem {
-  account: string;
-  balance: string;
-  transactions: number;
-  daysAvailable: number;
-}
-
-interface TransferDataItem {
-  transferId: string;
-  amount: string;
-  type: string;
-  achClass: string | null;
-  network: string;
-}
-
-interface TransferAuthorizationDataItem {
-  authorizationId: string;
-  authorizationDecision: string;
-  decisionRationaleCode: string | null;
-  decisionRationaleDescription: string | null;
-}
-
-interface IncomePaystubsDataItem {
-  description: string;
-  currentAmount: number | null;
-  currency: number | null;
-}
-
-export interface ErrorDataItem {
-  error_type: string;
-  error_code: string;
-  error_message: string;
-  display_message: string | null;
-  status_code: number | null;
-}
-
-//all possible product data interfaces
-export type DataItem =
-  | AuthDataItem
-  | TransactionsDataItem
-  | IdentityDataItem
-  | BalanceDataItem
-  | InvestmentsDataItem
-  | InvestmentsTransactionItem
-  | LiabilitiessDataItem
-  | ItemDataItem
-  | PaymentDataItem
-  | AssetsDataItem
-  | TransferDataItem
-  | TransferAuthorizationDataItem
-  | IncomePaystubsDataItem;
-
-export type Data = Array<DataItem>;
-
-export const authCategories: Array<Categories> = [
+// Categories for each individual product
+const authCategories = [
   {
     title: "Name",
     field: "name",
@@ -168,7 +25,7 @@ export const authCategories: Array<Categories> = [
   },
 ];
 
-export const transactionsCategories: Array<Categories> = [
+const transactionsCategories = [
   {
     title: "Name",
     field: "name",
@@ -183,7 +40,7 @@ export const transactionsCategories: Array<Categories> = [
   },
 ];
 
-export const identityCategories: Array<Categories> = [
+const identityCategories = [
   {
     title: "Names",
     field: "names",
@@ -202,7 +59,7 @@ export const identityCategories: Array<Categories> = [
   },
 ];
 
-export const balanceCategories: Array<Categories> = [
+const balanceCategories = [
   {
     title: "Name",
     field: "name",
@@ -221,7 +78,7 @@ export const balanceCategories: Array<Categories> = [
   },
 ];
 
-export const investmentsCategories: Array<Categories> = [
+const investmentsCategories = [
   {
     title: "Account Mask",
     field: "mask",
@@ -244,7 +101,7 @@ export const investmentsCategories: Array<Categories> = [
   },
 ];
 
-export const investmentsTransactionsCategories: Array<Categories> = [
+const investmentsTransactionsCategories = [
   {
     title: "Name",
     field: "name",
@@ -259,7 +116,7 @@ export const investmentsTransactionsCategories: Array<Categories> = [
   },
 ];
 
-export const liabilitiesCategories: Array<Categories> = [
+const liabilitiesCategories = [
   {
     title: "Name",
     field: "name",
@@ -278,7 +135,7 @@ export const liabilitiesCategories: Array<Categories> = [
   },
 ];
 
-export const itemCategories: Array<Categories> = [
+const itemCategories = [
   {
     title: "Institution Name",
     field: "name",
@@ -293,7 +150,7 @@ export const itemCategories: Array<Categories> = [
   },
 ];
 
-export const accountsCategories: Array<Categories> = [
+const accountsCategories = [
   {
     title: "Name",
     field: "name",
@@ -312,7 +169,7 @@ export const accountsCategories: Array<Categories> = [
   },
 ];
 
-export const paymentCategories: Array<Categories> = [
+const paymentCategories = [
   {
     title: "Payment ID",
     field: "paymentId",
@@ -335,7 +192,7 @@ export const paymentCategories: Array<Categories> = [
   },
 ];
 
-export const assetsCategories: Array<Categories> = [
+const assetsCategories = [
   {
     title: "Account",
     field: "account",
@@ -354,7 +211,7 @@ export const assetsCategories: Array<Categories> = [
   },
 ];
 
-export const transferCategories: Array<Categories> = [
+const transferCategories = [
   {
     title: "Transfer ID",
     field: "transferId",
@@ -381,7 +238,7 @@ export const transferCategories: Array<Categories> = [
   },
 ];
 
-export const transferAuthorizationCategories: Array<Categories> = [
+const transferAuthorizationCategories = [
   {
     title: "Authorization ID",
     field: "authorizationId",
@@ -400,7 +257,7 @@ export const transferAuthorizationCategories: Array<Categories> = [
   },
 ];
 
-export const incomePaystubsCategories: Array<Categories> = [
+const incomePaystubsCategories = [
   {
     title: "Description",
     field: "description",
@@ -415,43 +272,36 @@ export const incomePaystubsCategories: Array<Categories> = [
   },
 ];
 
-export const transformAuthData = (data: AuthGetResponse) => {
-  return data.numbers.ach!.map((achNumbers) => {
-    const account = data.accounts!.filter((a) => {
+const transformAuthData = (data) => {
+  return data.numbers.ach.map((achNumbers) => {
+    const account = data.accounts.filter((a) => {
       return a.account_id === achNumbers.account_id;
     })[0];
-    const balance: number | null | undefined =
-      account.balances.available || account.balances.current;
-    const obj: DataItem = {
+    const balance = account.balances.available || account.balances.current;
+    const obj = {
       name: account.name,
       balance: formatCurrency(balance, account.balances.iso_currency_code),
-      account: achNumbers.account!,
-      routing: achNumbers.routing!,
+      account: achNumbers.account,
+      routing: achNumbers.routing,
     };
     return obj;
   });
 };
 
-export const transformTransactionsData = (data: {
-  latest_transactions: Transaction[];
-}): Array<DataItem> => {
-  return data.latest_transactions!.map((t) => {
-    const item: DataItem = {
-      name: t.name!,
-      amount: formatCurrency(t.amount!, t.iso_currency_code),
+const transformTransactionsData = (data) => {
+  return data.latest_transactions.ach.map((t) => {
+    const item = {
+      name: t.name,
+      amount: formatCurrency(t.amount, t.iso_currency_code),
       date: t.date,
     };
     return item;
   });
 };
 
-interface IdentityData {
-  identity: IdentityGetResponse["accounts"];
-}
-
-export const transformIdentityData = (data: IdentityData) => {
-  const final: Array<DataItem> = [];
-  const identityData = data.identity![0];
+const transformIdentityData = (data) => {
+  const final = [];
+  const identityData = data.identity[0];
   identityData.owners.forEach((owner) => {
     const names = owner.names.map((name) => {
       return name;
@@ -487,46 +337,40 @@ export const transformIdentityData = (data: IdentityData) => {
   return final;
 };
 
-export const transformBalanceData = (data: AccountsGetResponse) => {
+const transformBalanceData = (data) => {
   const balanceData = data.accounts;
   return balanceData.map((account) => {
-    const balance: number | null | undefined =
-      account.balances.available || account.balances.current;
-    const obj: DataItem = {
+    const balance = account.balances.available || account.balances.current;
+    const obj = {
       name: account.name,
       balance: formatCurrency(balance, account.balances.iso_currency_code),
       subtype: account.subtype,
-      mask: account.mask!,
+      mask: account.mask,
     };
     return obj;
   });
 };
 
-interface InvestmentData {
-  error: null;
-  holdings: InvestmentsHoldingsGetResponse;
-}
-
-export const transformInvestmentsData = (data: InvestmentData) => {
-  const holdingsData = data.holdings.holdings!.sort(function (a, b) {
+const transformInvestmentsData = (data) => {
+  const holdingsData = data.holdings.holdings.sort(function (a, b) {
     if (a.account_id > b.account_id) return 1;
     return -1;
   });
   return holdingsData.map((holding) => {
-    const account = data.holdings.accounts!.filter(
+    const account = data.holdings.accounts.filter(
       (acc) => acc.account_id === holding.account_id
     )[0];
-    const security = data.holdings.securities!.filter(
+    const security = data.holdings.securities.filter(
       (sec) => sec.security_id === holding.security_id
     )[0];
-    const value = holding.quantity * security.close_price!;
+    const value = holding.quantity * security.close_price;
 
-    const obj: DataItem = {
-      mask: account.mask!,
-      name: security.name!,
+    const obj = {
+      mask: account.mask,
+      name: security.name,
       quantity: formatCurrency(holding.quantity, ""),
       price: formatCurrency(
-        security.close_price!,
+        security.close_price,
         account.balances.iso_currency_code
       ),
       value: formatCurrency(value, account.balances.iso_currency_code),
@@ -535,29 +379,19 @@ export const transformInvestmentsData = (data: InvestmentData) => {
   });
 };
 
-interface InvestmentsTransactionData {
-  error: null;
-  investments_transactions: InvestmentsTransactionsGetResponse;
-}
-
-export const transformInvestmentTransactionsData = (
-  data: InvestmentsTransactionData
-) => {
+const transformInvestmentTransactionsData = (data) => {
   const investmentTransactionsData =
-    data.investments_transactions.investment_transactions!.sort(function (
-      a,
-      b
-    ) {
+    data.investments_transactions.investment_transactions.sort(function (a, b) {
       if (a.account_id > b.account_id) return 1;
       return -1;
     });
   return investmentTransactionsData.map((investmentTransaction) => {
-    const security = data.investments_transactions.securities!.filter(
+    const security = data.investments_transactions.securities.filter(
       (sec) => sec.security_id === investmentTransaction.security_id
     )[0];
 
-    const obj: DataItem = {
-      name: security.name!,
+    const obj = {
+      name: security.name,
       amount: investmentTransaction.amount,
       date: investmentTransaction.date,
     };
@@ -565,20 +399,15 @@ export const transformInvestmentTransactionsData = (
   });
 };
 
-interface LiabilitiesDataResponse {
-  error: null;
-  liabilities: LiabilitiesGetResponse;
-}
-
-export const transformLiabilitiesData = (data: LiabilitiesDataResponse) => {
+const transformLiabilitiesData = (data) => {
   const liabilitiesData = data.liabilities.liabilities;
   //console.log(liabilitiesData)
   //console.log("random")
-  const credit = liabilitiesData.credit!.map((credit) => {
+  const credit = liabilitiesData.credit.map((credit) => {
     const account = data.liabilities.accounts.filter(
       (acc) => acc.account_id === credit.account_id
     )[0];
-    const obj: DataItem = {
+    const obj = {
       name: account.name,
       type: "credit card",
       date: credit.last_payment_date ?? "",
@@ -594,12 +423,12 @@ export const transformLiabilitiesData = (data: LiabilitiesDataResponse) => {
     const account = data.liabilities.accounts.filter(
       (acc) => acc.account_id === mortgage.account_id
     )[0];
-    const obj: DataItem = {
+    const obj = {
       name: account.name,
       type: "mortgage",
-      date: mortgage.last_payment_date!,
+      date: mortgage.last_payment_date,
       amount: formatCurrency(
-        mortgage.last_payment_amount!,
+        mortgage.last_payment_amount,
         account.balances.iso_currency_code
       ),
     };
@@ -610,24 +439,22 @@ export const transformLiabilitiesData = (data: LiabilitiesDataResponse) => {
     const account = data.liabilities.accounts.filter(
       (acc) => acc.account_id === student.account_id
     )[0];
-    const obj: DataItem = {
+    const obj = {
       name: account.name,
       type: "student loan",
-      date: student.last_payment_date!,
+      date: student.last_payment_date,
       amount: formatCurrency(
-        student.last_payment_amount!,
+        student.last_payment_amount,
         account.balances.iso_currency_code
       ),
     };
     return obj;
   });
 
-  return credit!.concat(mortgages!).concat(student!);
+  return credit.concat(mortgages).concat(student);
 };
 
-export const transformTransferAuthorizationData = (
-  data: TransferAuthorizationCreateResponse
-) => {
+const transformTransferAuthorizationData = (data) => {
   const transferAuthorizationData = data.authorization;
   return [
     {
@@ -645,9 +472,7 @@ export const transformTransferAuthorizationData = (
   ];
 };
 
-export const transformTransferData = (
-  data: TransferCreateResponse
-): Array<DataItem> => {
+const transformTransferData = (data) => {
   const transferData = data.transfer;
   return [
     {
@@ -661,12 +486,7 @@ export const transformTransferData = (
   ];
 };
 
-interface ItemData {
-  item: ItemGetResponse["item"];
-  institution: InstitutionsGetByIdResponse["institution"];
-}
-
-export const transformItemData = (data: ItemData): Array<DataItem> => {
+const transformItemData = (data) => {
   return [
     {
       name: data.institution.name,
@@ -676,26 +496,21 @@ export const transformItemData = (data: ItemData): Array<DataItem> => {
   ];
 };
 
-export const transformAccountsData = (data: AccountsGetResponse) => {
+const transformAccountsData = (data) => {
   const accountsData = data.accounts;
   return accountsData.map((account) => {
-    const balance: number | null | undefined =
-      account.balances.available || account.balances.current;
-    const obj: DataItem = {
+    const balance = account.balances.available || account.balances.current;
+    const obj = {
       name: account.name,
       balance: formatCurrency(balance, account.balances.iso_currency_code),
       subtype: account.subtype,
-      mask: account.mask!,
+      mask: account.mask,
     };
     return obj;
   });
 };
 
-interface PaymentData {
-  payment: PaymentInitiationPaymentGetResponse;
-}
-
-export const transformPaymentData = (data: PaymentData) => {
+const transformPaymentData = (data) => {
   const statusUpdate =
     typeof data.payment.last_status_update === "string"
       ? data.payment.last_status_update.replace("T", " ").replace("Z", "")
@@ -714,38 +529,29 @@ export const transformPaymentData = (data: PaymentData) => {
   ];
 };
 
-interface AssetResponseData {
-  json: AssetReport;
-}
-
-export const transformAssetsData = (data: AssetResponseData) => {
+export const transformAssetsData = (data) => {
   const assetItems = data.json.items;
   return assetItems.flatMap((item) => {
     return item.accounts.map((account) => {
-      const balance: number | null | undefined =
-        account.balances.available || account.balances.current;
-      const obj: DataItem = {
+      const balance = account.balances.available || account.balances.current;
+      const obj = {
         account: account.name,
         balance: formatCurrency(balance, account.balances.iso_currency_code),
-        transactions: account.transactions!.length,
-        daysAvailable: account.days_available!,
+        transactions: account.transactions.length,
+        daysAvailable: account.days_available,
       };
       return obj;
     });
   });
 };
 
-interface IncomePaystub {
-  paystubs: IncomeVerificationPaystubsGetResponse;
-}
-
-export const transformIncomePaystubsData = (data: IncomePaystub) => {
-  const paystubsItemsArray: Array<Paystub> = data.paystubs.paystubs;
-  var finalArray: Array<IncomePaystubsDataItem> = [];
+export const transformIncomePaystubsData = (data) => {
+  const paystubsItemsArray = data.paystubs.paystubs;
+  var finalArray = [];
   for (var i = 0; i < paystubsItemsArray.length; i++) {
-    var ActualEarningVariable: any = paystubsItemsArray[i].earnings;
+    var ActualEarningVariable = paystubsItemsArray[i].earnings;
     for (var j = 0; j < ActualEarningVariable.breakdown.length; j++) {
-      var payStubItem: IncomePaystubsDataItem = {
+      var payStubItem = {
         description:
           paystubsItemsArray[i].employer.name +
           "_" +

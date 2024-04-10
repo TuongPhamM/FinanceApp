@@ -2,15 +2,9 @@ import React, { useEffect, useState } from "react";
 import Button from "plaid-threads/Button";
 import Note from "plaid-threads/Note";
 
-import { ErrorDataItem } from "../../dataUtilities";
-
 import styles from "./index.module.scss";
 
-interface Props {
-  error: ErrorDataItem;
-}
-
-const errorPaths: { [key: string]: string } = {
+const errorPaths = {
   ITEM_ERROR: "item",
   INSTITUTION_ERROR: "institution",
   API_ERROR: "api",
@@ -26,11 +20,11 @@ const errorPaths: { [key: string]: string } = {
   SANDBOX_ERROR: "sandbox",
 };
 
-const Error = (props: Props) => {
+const Error = (props) => {
   const [path, setPath] = useState("");
 
   useEffect(() => {
-    const errorType = props.error.error_type!;
+    const errorType = props.error.error_type;
     const errorPath = errorPaths[errorType];
 
     setPath(

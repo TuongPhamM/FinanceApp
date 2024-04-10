@@ -1,24 +1,16 @@
 import React from "react";
-
-import { DataItem, Categories } from "../../dataUtilities";
-
 import styles from "./Identity.module.scss";
 
-interface Props {
-  data: Array<DataItem>;
-  categories: Array<Categories>;
-}
-
-const Identity = (props: Props) => {
+const Identity = (props) => {
   const identityHeaders = props.categories.map((category, index) => (
     <span key={index} className={styles.identityHeader}>
       {category.title}
     </span>
   ));
 
-  const identityRows = props.data.map((item: DataItem | any, index) => (
+  const identityRows = props.data.map((item, index) => (
     <div key={index} className={styles.identityDataRow}>
-      {props.categories.map((category: Categories, index) => (
+      {props.categories.map((category, index) => (
         <span key={index} className={styles.identityDataField}>
           {item[category.field]}
         </span>

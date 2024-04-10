@@ -4,25 +4,16 @@ import Note from "plaid-threads/Note";
 
 import Table from "../Table";
 import Error from "../Error";
-import { DataItem, Categories, ErrorDataItem, Data } from "../../dataUtilities";
+import { ErrorDataItem, Data } from "../../dataUtilities";
 
 import styles from "./index.module.scss";
 import Context from "../../Context";
 
-interface Props {
-  endpoint: string;
-  name?: string;
-  categories: Array<Categories>;
-  schema: string;
-  description: string;
-  transformData: (arg: any) => Array<DataItem>;
-}
-
-const Endpoint = (props: Props) => {
+const Endpoint = (props) => {
   const [showTable, setShowTable] = useState(false);
-  const [transformedData, setTransformedData] = useState<Data>([]);
-  const [pdf, setPdf] = useState<string | null>(null);
-  const [error, setError] = useState<ErrorDataItem | null>(null);
+  const [transformedData, setTransformedData] = useState < Data > [];
+  const [pdf, setPdf] = (useState < string) | (null > null);
+  const [error, setError] = (useState < ErrorDataItem) | (null > null);
   const [isLoading, setIsLoading] = useState(false);
   const { accessToken } = useContext(Context);
 
